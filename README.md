@@ -2,6 +2,8 @@
 
 Real-time multilingual **speech-to-text** web app. Speak in Hindi, English or a mix (Hinglish) and the words appear **as you talk**. Save transcriptions and manage them on a history dashboard with full CRUD.
 
+- **Live app:** https://ai-translate-mu.vercel.app
+- **Live API:** https://ai-translate-api-mwbj.onrender.com/api/health
 - **Backend repo (Express API):** https://github.com/anildeveloper26/AI-Translate-api
 - Built for the Procucev AI Tech Hiring Assignment.
 
