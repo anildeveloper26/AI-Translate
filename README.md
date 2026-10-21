@@ -57,18 +57,31 @@ Import this repo into Vercel (the framework preset is TanStack Start) and set `V
 
 ```
 src/
-  routes/
-    __root.tsx           # html shell, nav, devtools
-    index.tsx            # recorder + recent list (loader prefetch)
-    history.index.tsx    # history list with ?q= search
-    history.$id.tsx      # detail page
-  components/
-    Recorder.tsx         # engine switch, language, timer, live transcript, save
-    TranscriptionRow.tsx # inline edit / delete / play
-  hooks/
-    useGeminiLive.ts     # AudioWorklet PCM capture → Gemini Live WebSocket
-    useBrowserSpeech.ts  # Web Speech API fallback
-  lib/
-    api.ts               # typed REST client for the Express API
-    queries.ts           # TanStack Query keys, queryOptions, mutations
+  routes/                         # TanStack Router file routes: config only (loaders, params, search)
+    __root.tsx                    # html shell + layout
+    index.tsx                     # /            → HomePage
+    history.index.tsx             # /history?q=  → HistoryPage
+    history.$id.tsx               # /history/$id → TranscriptionDetailPage
+  features/                       # feature modules (UI + logic)
+    home/pages/HomePage.tsx
+    recorder/
+      components/Recorder.tsx     # engine switch, language, timer, live transcript, save
+      hooks/useGeminiLive.ts      # Gemini Live session over WebSocket
+      hooks/useBrowserSpeech.ts   # Web Speech API fallback
+      lib/pcm.ts                  # AudioWorklet 16 kHz PCM capture
+    transcriptions/
+      queries.ts                  # TanStack Query keys + queryOptions
+      mutations.ts                # create / update / delete mutations
+      components/TranscriptionRow.tsx
+      pages/HistoryPage.tsx
+      pages/TranscriptionDetailPage.tsx
+  api/                            # typed REST client for the Express API
+    client.ts
+    transcriptions.ts
+    live.ts
+  components/layout/              # Navbar, Footer, NotFound
+  config/env.ts                   # VITE_API_URL
+  constants/languages.ts
+  types/transcription.ts
+  utils/                          # format.ts, speech.ts
 ```

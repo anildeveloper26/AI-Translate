@@ -1,15 +1,9 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { languageLabel } from '#/lib/api'
-import type { Transcription } from '#/lib/api'
-import { useDeleteTranscription, useUpdateTranscription } from '#/lib/queries'
-
-export function speak(t: Transcription) {
-  const u = new SpeechSynthesisUtterance(t.content)
-  u.lang = t.language
-  window.speechSynthesis.cancel()
-  window.speechSynthesis.speak(u)
-}
+import { useDeleteTranscription, useUpdateTranscription } from '../mutations'
+import { speak } from '#/utils/speech'
+import { transcriptionMeta } from '#/utils/format'
+import type { Transcription } from '#/types/transcription'
 
 export function TranscriptionRow({ t }: { t: Transcription }) {
   const [editing, setEditing] = useState(false)
@@ -20,6 +14,12 @@ export function TranscriptionRow({ t }: { t: Transcription }) {
 
   function save() {
     update.mutate({ id: t.id, data: { title, content } }, { onSuccess: () => setEditing(false) })
+  }
+
+  function cancel() {
+    setEditing(false)
+    setTitle(t.title)
+    setContent(t.content)
   }
 
   const error = update.error?.message || remove.error?.message
@@ -47,14 +47,7 @@ export function TranscriptionRow({ t }: { t: Transcription }) {
             >
               {update.isPending ? 'Saving…' : 'Save'}
             </button>
-            <button
-              onClick={() => {
-                setEditing(false)
-                setTitle(t.title)
-                setContent(t.content)
-              }}
-              className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700"
-            >
+            <button onClick={cancel} className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm dark:border-zinc-700">
               Cancel
             </button>
           </div>
@@ -67,12 +60,16 @@ export function TranscriptionRow({ t }: { t: Transcription }) {
             </Link>
             <p className="mt-1 line-clamp-3 whitespace-pre-wrap break-words text-sm text-zinc-700 dark:text-zinc-300">{t.content}</p>
             <p className="mt-1 text-xs text-zinc-500">
-              {new Date(t.created_at).toLocaleString()} · {languageLabel(t.language)} · {t.engine === 'gemini' ? 'Gemini Live' : 'Browser'} ·{' '}
-              {Math.round(t.duration_ms / 1000)}s{t.updated_at !== t.created_at && ' · edited'}
+              {transcriptionMeta(t)}
+              {t.updated_at !== t.created_at && ' · edited'}
             </p>
           </div>
           <div className="flex shrink-0 gap-1 text-sm">
-            <button onClick={() => speak(t)} className="rounded-md px-2 py-1 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" title="Read aloud">
+            <button
+              onClick={() => speak(t.content, t.language)}
+              className="rounded-md px-2 py-1 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              title="Read aloud"
+            >
               ▶ Play
             </button>
             <button onClick={() => setEditing(true)} className="rounded-md px-2 py-1 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-zinc-800">

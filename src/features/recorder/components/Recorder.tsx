@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { useGeminiLive } from '#/hooks/useGeminiLive'
-import { useBrowserSpeech } from '#/hooks/useBrowserSpeech'
-import { LANGUAGES } from '#/lib/api'
-import { useCreateTranscription } from '#/lib/queries'
+import { useGeminiLive } from '../hooks/useGeminiLive'
+import { useBrowserSpeech } from '../hooks/useBrowserSpeech'
+import { DEFAULT_LANGUAGE, LANGUAGES } from '#/constants/languages'
+import { formatClock } from '#/utils/format'
+import type { Engine } from '#/types/transcription'
+import { useCreateTranscription } from '#/features/transcriptions/mutations'
 
-type Engine = 'gemini' | 'browser'
 
 export function Recorder() {
   const [engine, setEngine] = useState<Engine>('gemini')
-  const [lang, setLang] = useState('hi-IN')
+  const [lang, setLang] = useState<string>(DEFAULT_LANGUAGE)
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [elapsed, setElapsed] = useState(0)
   const [saved, setSaved] = useState(false)
@@ -55,7 +56,6 @@ export function Recorder() {
     )
   }
 
-  const secs = Math.floor(elapsed / 1000)
   const error = sr.error || create.error?.message
 
   return (
@@ -105,7 +105,7 @@ export function Recorder() {
         </button>
 
         <span className="tabular-nums text-sm text-zinc-500">
-          {String(Math.floor(secs / 60)).padStart(2, '0')}:{String(secs % 60).padStart(2, '0')}
+          {formatClock(elapsed)}
         </span>
 
         <button
